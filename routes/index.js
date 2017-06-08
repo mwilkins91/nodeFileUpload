@@ -11,8 +11,34 @@ const mime = require('mime');
 const fs = require('fs');
 
 
+//for working with google apis
+const google = require('googleapis');
+const OAuth2 = google.auth.OAuth2;
+var drive = google.drive('v3');
 
+var key = require('../OFOBFORM.json');
+var jwtClient = new google.auth.JWT( //this is confusing, but the comments here are helpful: https://github.com/google/google-api-nodejs-client/blob/master/samples/jwt.js
+  key.client_email,
+  null, //for .pem files... not relevent
+  key.private_key,
+  ['https://www.googleapis.com/auth/drive.readonly'], //tells Markbot what he is allowed to touch in our drive. remove readonly for full access. More info here: https://developers.google.com/drive/v2/web/about-auth.
+  null //put email here if Markbot should pretend to be someone else (he will pretend to be this email)
+);
 
+jwtClient.authorize(function (err, tokens) {
+  if (err) {
+    console.log(err);
+    return;
+  }
+
+  // Make an authorized request to list Drive files.
+  drive.files.list({
+    auth: jwtClient
+  }, function (err, resp) {
+    // handle err and response
+    console.log(resp) //list files in the terminal
+  });
+});
 
 // Do work here
 
@@ -21,6 +47,7 @@ router.get('/', (req, res) => {
     // res.render('layout');
     console.log(req.body)
     res.send('hello!')
+    console.log(drive)
 });
 
 router.post('/', upload.single('img'), (req, res) => {
