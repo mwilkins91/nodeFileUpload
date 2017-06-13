@@ -10,6 +10,7 @@ const routes = require('./routes/index');
 const helpers = require('./helpers');
 const errorHandlers = require('./handlers/errorHandlers');
 
+console.log('hello friends!')
 
 
 // create our Express app
