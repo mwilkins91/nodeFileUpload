@@ -1,2 +1,7 @@
+section[aria-hidden='true'] {
+  display: none; }
+
+a[aria-selected='true'] {
+  font-weight: bold; }
 
 /*# sourceMappingURL=style.css.map*/
