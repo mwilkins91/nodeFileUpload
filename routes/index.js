@@ -97,8 +97,9 @@ async function makeGoogleFolder(name) {
 router.get('/', (req, res) => {
     // res.render('layout');
     console.log(req.body)
-    res.send('hello!')
-        // console.log(drive)
+    // res.send('hello!')
+    res.render('5hrform')
+    // console.log(drive)
 });
 
 router.post('/', upload.single('img'), (req, res) => {

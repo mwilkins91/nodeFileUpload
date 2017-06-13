@@ -1,0 +1,113 @@
+doctype html
+html
+  head
+    title= `${title} | ${h.siteName}`
+    link(rel='stylesheet', href='/dist/style.css')
+    link(rel="shortcut icon" type="image/png" href="/images/icons/doughnut.png")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+  body
+    block main
+      form
+        div(class="title") 
+          h1 onBrand Asset Submission (give)
+          p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Debitis, accusamus.
+        nav(role='tablist')
+          a(href='#tab' aria-controls="content1" aria-selected="true" id="tab1" role="tab") Asset Upload
+          a(href='#tab' aria-controls="content2" id="tab2" role="tab") Customization Options
+          a(href='#tab' aria-controls="content3" id="tab3" role="tab") Additional Information
+        section(class="wrapper contentSection" id="content1")
+          label(for="companyName") Company Name:
+          input(type='text' name="companyName" id="companyName")
+          p Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+          label(for="hubID") Hub ID:
+          input(type='text' name="hubID" id="hubID")
+          p Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+          label(for="url") Header and Footer URL:
+          input(type='text' name="url" id="url")
+          p Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+
+          label(for="bannerImage") Banner Image:
+          input(type='file' name="bannerImage" id="bannerImage")
+
+          label(for="customFonts") Custom Fonts:
+          input(type='file' name="customFonts" id="customFonts")
+
+
+          p Is your Hub currently live?
+          label(for="hubliveYes") Yes
+          input(type='checkbox' name="hubliveYes" id="hublive" value="Yes")
+          label(for="hubliveNo") No
+          input(type='checkbox' name="hubliveNo" id="hublive" value="No")
+
+          button(id="firstButton" class="continue" aria-controls="content2") Save and Continue
+
+
+
+        section(class="wrapper contentSection" id="content2" aria-hidden="true")
+          div 
+            p Tile Descriptions slide up animation
+            p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum aliquam nisi dignissimos distinctio saepe quibusdam!
+            input(type='checkbox' name="tileSlideUp" id="tileSlideUp")
+            button View Demo
+          div 
+            p Tile Descriptions slide up animation
+            p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum aliquam nisi dignissimos distinctio saepe quibusdam!
+            input(type='checkbox' name="tileSlideUp" id="tileSlideUp")
+            button View Demo
+          div 
+            p Tile Descriptions slide up animation
+            p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum aliquam nisi dignissimos distinctio saepe quibusdam!
+            input(type='checkbox' name="tileSlideUp" id="tileSlideUp")
+            button View Demo
+          div 
+            p Tile Descriptions slide up animation
+            p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum aliquam nisi dignissimos distinctio saepe quibusdam!
+            input(type='checkbox' name="tileSlideUp" id="tileSlideUp")
+            button View Demo
+          div 
+            p Tile Descriptions slide up animation
+            p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum aliquam nisi dignissimos distinctio saepe quibusdam!
+            input(type='checkbox' name="tileSlideUp" id="tileSlideUp")
+            button View Demo
+          div 
+            p Tile Descriptions slide up animation
+            p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum aliquam nisi dignissimos distinctio saepe quibusdam!
+            input(type='checkbox' name="tileSlideUp" id="tileSlideUp")
+            button View Demo
+          h3 Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempore aspernatur, voluptatem magni id. Quidem, mollitia?
+          div 
+            p Tile Descriptions slide up animation
+            p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum aliquam nisi dignissimos distinctio saepe quibusdam!
+            input(type='checkbox' name="tileSlideUp" id="tileSlideUp")
+            button View Demo
+          div 
+            p Tile Descriptions slide up animation
+            p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum aliquam nisi dignissimos distinctio saepe quibusdam!
+            input(type='checkbox' name="tileSlideUp" id="tileSlideUp")
+            button View Demo
+          div 
+            p Tile Descriptions slide up animation
+            p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nostrum aliquam nisi dignissimos distinctio saepe quibusdam!
+            input(type='checkbox' name="tileSlideUp" id="tileSlideUp")
+            button View Demo
+
+          button(id="secondButton" class="continue" aria-controls="content3") Save and Continue
+
+
+        section(class="wrapper contentSection" id="content3" aria-hidden="true")
+          label(for="additionalComments") Additional Comments/notes
+          textarea(name="additionalComments" id="additionalComments" rows="5" cols="50")
+          p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Soluta quibusdam distinctio sapiente perferendis laboriosam eius eligendi, repellendus itaque. Error explicabo aspernatur sint repellendus magni tenetur odio ipsam voluptate rerum eveniet.
+
+          input(type="submit" nmae="submitRequest" id="submitRequest" value="Submit Request")
+
+
+
+
+
+    
+    block content
+
+    block scripts
+
+      script(src="/dist/App.bundle.js")
