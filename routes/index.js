@@ -1,42 +1,41 @@
 const express = require('express');
 const router = express.Router();
 //handles file uploads from html forms
-const multer = require('multer');
-const upload = multer({ dest: './uploads/' });
+// const multer = require('multer');
+// const upload = multer({ dest: './uploads/' });
 const folderFunctions = require('../controllers/folderFunctions');
-const makeLocalFolder = folderFunctions.makeLocalFolder;
-const makeGoogleFolder = folderFunctions.makeGoogleFolder;
-
+const makeFolders = folderFunctions.makeFolders;
+const mime = require('mime');
+const fs = require('fs');
+// console.log(upload)
 router.get('/', (req, res) => {
     res.render('5hrform')
 });
 
-router.post('/', upload.single('img'), (req, res) => {
+router.post('/', (req, res) => {
 
     // res.render('layout');
     console.log(req.body)
-    console.dir(req.file);
-
-    //gives you the proper extension (IE .jpg, .mp4, etc) for your file based on its mimetype
-    const fileExtension = mime.extension(req.file.mimetype);
-
-    //rename file with appropriate extension (fs = filesystem)
-    //(arg1 = current file path, arg2 = location of renamedfile/its new name)
-    fs.rename(`uploads/${req.file.filename}`, `uploads/${req.file.filename}.${fileExtension}`, function(err) {
-        if (err) {
-            console.log('ERROR: ' + err);
-        }
-    });
-
+    console.dir(req.files);
+    const uploadArray = req.files;
+    uploadArray.forEach((file) => {
+        const fileExtension = mime.extension(file.mimetype);
+         //rename file with appropriate extension(fs = filesystem)
+         //(arg1 = current file path, arg2 = location of renamedfile / its new name)
+         fs.rename(`uploads/${file.filename}`, `uploads/${file.filename}.${fileExtension}`, function(err) {
+         if (err) {
+             console.log('ERROR: ' + err);
+         }
+     });
+    })
     //give feedback to client
-    res.send(`Thank you for uploading ${req.file.originalname}, it has been renamed to ${req.file.filename}.${fileExtension} in the uploads folder.`)
+    res.send(`uploaded`)
 });
 
-router.post('/mkdir', (req, res) => {
+//TODO: add renameAndMoveFiles() and test...
+router.post('/mkdir', makeFolders, (req, res) => {
     console.log(req.body)
         // TODO: re-factor into middleware
-    makeLocalFolder(req.body.folderName) // makes LOCAL folder
-    makeGoogleFolder(req.body.folderName) // makes GOOGLE folder, then gives permission to Mark to view
     res.send(req.body.folderName)
 })
 
@@ -51,6 +50,17 @@ module.exports = router;
 
 //Then, send folder to drive
 //IF SUCCESFULL delete server copy of folder
+
+
+
+//Middleware Chain
+    //makeFolders()   ---next()--->   renameAndMoveFiles()   ---next()--->   writeBodyTextToDocument()   ---next()--->  uploadToDrive()   ---next()--->  deletelocalFolder() **END**
+        //1) makeFolders() --> Creates local folder and Google Folder, passes names and directory onto next function via req.folderInfo{}
+        //2) renameAndMoveFiles() --> Files are uploaded to ./uploads, this function takes them and adds extension (.jpg, .mov, etc), then puts them in the local folder listed in req.folderInfo{}
+        //3) writeBodyTextToDocument() --> Takes text posted by the form and writes it into a document (.txt? Excel? TBD...) then puts it into the local folder.
+        //4) uploadToDrive() --> Takes the local folder listed in req.folderInfo and uploads it to the google folder listed in req.folderInfo
+        //5) IF UPLOAD SUCCESSFULL, delete local folder. IF NOT, try again?
+
 
 
 

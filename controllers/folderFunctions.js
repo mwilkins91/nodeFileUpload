@@ -4,11 +4,13 @@ const mime = require('mime');
 const promisify = require("es6-promisify");
 const fs = require('fs');
 const mkdir = promisify(fs.mkdir);
+const listFiles = promisify(fs.readdir);
 //for working with google apis
 const google = require('googleapis');
 const OAuth2 = google.auth.OAuth2;
 var drive = google.drive('v3');
-
+const drivePermission = promisify(drive.permissions.create);
+const driveFolderCreate = promisify(drive.files.create);
 var key = require('../OFOBFORM.json');
 var jwtClient = new google.auth.JWT( //this is confusing, but the comments here are helpful: https://github.com/google/google-api-nodejs-client/blob/master/samples/jwt.js
     key.client_email,
@@ -21,68 +23,118 @@ var jwtClient = new google.auth.JWT( //this is confusing, but the comments here 
 
 // Do work here
 
-exports.makeLocalFolder = async (name) => {
-    try {
-        await mkdir(`./uploads/${name}`)
-    } catch (err) {
-        console.error(err)
-    }
-}
 
-const givePerms = (fileID) => {
-    jwtClient.authorize(function(err, tokens) { // Authorizes Markbot to do things
-        if (err) {
-            console.log(err);
-            return;
-        }
+
+//*** Local functions ***
+
+
+const givePerms = async (fileID) => {
+    try {
+        await jwtClient.authorize();
+
         var fileId = fileID;
         var userPermission = { //gives permission for me to access the folder (owned by MArkbot)
             'type': 'user',
             'role': 'writer',
             'emailAddress': 'mark.wilkins@uberflip.com'
         }
-        drive.permissions.create({
+        const PermResponse = await drivePermission({
             resource: userPermission,
             fileId: fileId,
             fields: 'id',
             auth: jwtClient //<-- dont forget this or you'll get 401 error!
-        }, function(err, res) {
-            if (err) {
-                // Handle error
-                console.log(err);
-            } else {
-                console.log('Permission ID: ', res.id)
-            }
         });
-    });
+        console.log('Permission ID:' + PermResponse.id)
+        return PermResponse.id;
+    } catch (err) {
+        console.error(err);
+    }
 }
 
-exports.makeGoogleFolder = async (name) => {
-    var fileMetadata = {
-        'name': `${name}`,
-        'mimeType': 'application/vnd.google-apps.folder'
-    };
+
+const makeLocalFolder = async (name) => {
     try {
-    await jwtClient.authorize(function(err, tokens) { // Authorizes Markbot to do things
-        if (err) {
-            console.log(err);
-            return;
-        }
-        drive.files.create({
+        const localFolder = await mkdir(`./uploads/${name}`);
+        const listOfFiles = await listFiles('./uploads');
+        console.log(listOfFiles);
+    } catch (err) {
+        console.error(err)
+    }
+}
+
+
+const makeGoogleFolder = async (name) => {
+    try {
+        //describes the file (or in this case, folder) we want to create
+        var fileMetadata = {
+            'name': `${name}`,
+            'mimeType': 'application/vnd.google-apps.folder'
+        };
+
+        //waits for Markbot to get authorization before trying to do stuff
+        await jwtClient.authorize();
+
+        //waits for folder to be created, stores response in variable
+        const folderData = await driveFolderCreate({
             resource: fileMetadata,
             fields: 'id',
             auth: jwtClient
-        }, function(err, file) {
-            if (err) {
-                // Handle error
-                console.log(err);
-            } else {
-                console.log('Folder Id: ', file.id);
-                givePerms(file.id)
-            }
         });
-    });
-  } catch(err) {
-    console.err(err);
-  }
+        console.log('Folder Data: ', folderData)
+
+        //waits for function that gives user permission to view new folder. stores ID in variable.
+        const permissionID = await givePerms(folderData.id);
+
+        return {
+            folderData: folderData.id,
+            permissionID,
+
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+
+
+
+//*** Exported Functions (AKA MiddleWare)
+
+
+exports.makeFolders = async function(req, res, next) {
+    try {
+        makeLocalFolder(req.body.folderName) // makes LOCAL folder
+        //NOTE: remove await from permission and permission id from folder info if we dont need it later, to speed up response time.
+        const googleFolderData = await makeGoogleFolder(req.body.folderName) // makes GOOGLE folder, then gives permission to Mark to view
+        const folderInfo = {
+            goolgleFolderData,
+            folderName: req.body.folderName
+
+        }
+        req.folderInfo = folderInfo;
+
+
+        next();
+        return;
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+exports.renameAndMoveFiles = function(req, res, next) {
+    console.log(req.body)
+    console.dir(req.files);
+    const uploadArray = req.files;
+    uploadArray.forEach((file) => {
+        const fileExtension = mime.extension(file.mimetype);
+         //rename file with appropriate extension(fs = filesystem)
+         //(arg1 = current file path, arg2 = location of renamedfile / its new name)
+         fs.rename(`uploads/${file.filename}`, `uploads/${req.folderInfo.folderName}/${file.filename}.${fileExtension}`, function(err) {
+         if (err) {
+             console.log('ERROR: ' + err);
+         }
+     });
+    })
+    next();
+    return;
 }
