@@ -5,37 +5,21 @@ const router = express.Router();
 // const upload = multer({ dest: './uploads/' });
 const folderFunctions = require('../controllers/folderFunctions');
 const makeFolders = folderFunctions.makeFolders;
+const renameAndMoveFiles = folderFunctions.renameAndMoveFiles;
 const mime = require('mime');
 const fs = require('fs');
 // console.log(upload)
+
 router.get('/', (req, res) => {
     res.render('5hrform')
 });
 
-router.post('/', (req, res) => {
-
-    // res.render('layout');
-    console.log(req.body)
-    console.dir(req.files);
-    const uploadArray = req.files;
-    uploadArray.forEach((file) => {
-        const fileExtension = mime.extension(file.mimetype);
-         //rename file with appropriate extension(fs = filesystem)
-         //(arg1 = current file path, arg2 = location of renamedfile / its new name)
-         fs.rename(`uploads/${file.filename}`, `uploads/${file.filename}.${fileExtension}`, function(err) {
-         if (err) {
-             console.log('ERROR: ' + err);
-         }
-     });
-    })
-    //give feedback to client
-    res.send(`uploaded`)
-});
 
 //TODO: add renameAndMoveFiles() and test...
-router.post('/mkdir', makeFolders, (req, res) => {
+router.post('/mkdir', makeFolders, renameAndMoveFiles, (req, res) => {
     console.log(req.body)
         // TODO: re-factor into middleware
+        console.log("\x1b[32m",'🚀 Sending Response to user! 😀')
     res.send(req.body.folderName)
 })
 

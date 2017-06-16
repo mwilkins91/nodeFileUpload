@@ -29,6 +29,7 @@ var jwtClient = new google.auth.JWT( //this is confusing, but the comments here 
 
 
 const givePerms = async (fileID) => {
+    console.log("\x1b[33m", 'Giving permission to view new google folder....')
     try {
         await jwtClient.authorize();
 
@@ -44,7 +45,8 @@ const givePerms = async (fileID) => {
             fields: 'id',
             auth: jwtClient //<-- dont forget this or you'll get 401 error!
         });
-        console.log('Permission ID:' + PermResponse.id)
+        // console.log('Permission ID:' + PermResponse.id)
+        console.log("\x1b[32m",'done!')
         return PermResponse.id;
     } catch (err) {
         console.error(err);
@@ -53,10 +55,11 @@ const givePerms = async (fileID) => {
 
 
 const makeLocalFolder = async (name) => {
+    console.log("\x1b[33m",'Making local folder...')
     try {
         const localFolder = await mkdir(`./uploads/${name}`);
         const listOfFiles = await listFiles('./uploads');
-        console.log(listOfFiles);
+        // console.log(listOfFiles);
     } catch (err) {
         console.error(err)
     }
@@ -64,6 +67,7 @@ const makeLocalFolder = async (name) => {
 
 
 const makeGoogleFolder = async (name) => {
+    console.log("\x1b[33m",'Making folder on google drive...')
     try {
         //describes the file (or in this case, folder) we want to create
         var fileMetadata = {
@@ -81,7 +85,8 @@ const makeGoogleFolder = async (name) => {
             auth: jwtClient
         });
         console.log('Folder Data: ', folderData)
-
+        
+        console.log("\x1b[32m",'done!')
         //waits for function that gives user permission to view new folder. stores ID in variable.
         const permissionID = await givePerms(folderData.id);
 
@@ -102,12 +107,14 @@ const makeGoogleFolder = async (name) => {
 
 
 exports.makeFolders = async function(req, res, next) {
+    console.log("\x1b[31m", '**Incoming Form, kicking off form handling**')
     try {
-        makeLocalFolder(req.body.folderName) // makes LOCAL folder
+        await makeLocalFolder(req.body.folderName) // makes LOCAL folder
+        console.log("\x1b[32m",'done!')
         //NOTE: remove await from permission and permission id from folder info if we dont need it later, to speed up response time.
         const googleFolderData = await makeGoogleFolder(req.body.folderName) // makes GOOGLE folder, then gives permission to Mark to view
         const folderInfo = {
-            goolgleFolderData,
+            googleFolderData,
             folderName: req.body.folderName
 
         }
@@ -122,8 +129,9 @@ exports.makeFolders = async function(req, res, next) {
 }
 
 exports.renameAndMoveFiles = function(req, res, next) {
-    console.log(req.body)
-    console.dir(req.files);
+    console.log("\x1b[33m",'renaming and moving uploads to new folder...')
+    // console.log(req.body)
+    // console.dir(req.files);
     const uploadArray = req.files;
     uploadArray.forEach((file) => {
         const fileExtension = mime.extension(file.mimetype);
@@ -135,6 +143,7 @@ exports.renameAndMoveFiles = function(req, res, next) {
          }
      });
     })
+    console.log("\x1b[32m",'done!');
     next();
     return;
 }
